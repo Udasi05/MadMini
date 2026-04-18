@@ -19,17 +19,31 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myminiproject.navigation.Screen
 import com.example.myminiproject.ui.theme.*
+import com.example.myminiproject.utils.SessionManager
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    navController: NavController,
+    sessionManager: SessionManager
+) {
     var visible by remember { mutableStateOf(false) }
     var showButtons by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         visible = true
         delay(400)
-        showButtons = true
+        
+        // Check if user has a valid session
+        if (sessionManager.checkSessionValidity()) {
+            println("Valid session found, navigating to dashboard")
+            navController.navigate(Screen.Dashboard.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        } else {
+            println("No valid session, showing login options")
+            showButtons = true
+        }
     }
 
     val gradient = Brush.linearGradient(
@@ -129,7 +143,7 @@ fun SplashScreen(navController: NavController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    val features = listOf("🎤 Voice Input", "🌐 12 Languages", "📊 Smart Insights", "🏛️ Gov Schemes")
+                    val features = listOf("Voice Input", "12 Languages", "Smart Insights", "Gov Schemes")
                     features.forEach { feature ->
                         Box(
                             modifier = Modifier
@@ -211,7 +225,7 @@ fun SplashScreen(navController: NavController) {
                 }
 
                 Text(
-                    text = "🔒 Government-backed security standards",
+                    text = "Government-backed security standards",
                     fontSize = 11.sp,
                     color = Blue200,
                     textAlign = TextAlign.Center,

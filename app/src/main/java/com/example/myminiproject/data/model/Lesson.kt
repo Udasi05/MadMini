@@ -13,7 +13,7 @@ data class Lesson(
         fun getAllLessons(): List<Lesson> = listOf(
             Lesson(
                 id = 1,
-                emoji = "💰",
+                emoji = "01",
                 title = "What is Saving?",
                 duration = "5 min read",
                 colorHex = 0xFFFEF3C7,
@@ -22,7 +22,7 @@ data class Lesson(
             ),
             Lesson(
                 id = 2,
-                emoji = "📈",
+                emoji = "02",
                 title = "Understanding Interest",
                 duration = "6 min read",
                 colorHex = 0xFFEFF6FF,
@@ -31,7 +31,7 @@ data class Lesson(
             ),
             Lesson(
                 id = 3,
-                emoji = "🏦",
+                emoji = "03",
                 title = "Types of Loans",
                 duration = "7 min read",
                 colorHex = 0xFFF0FDF4,
@@ -40,7 +40,7 @@ data class Lesson(
             ),
             Lesson(
                 id = 4,
-                emoji = "🛡️",
+                emoji = "04",
                 title = "Why Insurance Matters",
                 duration = "8 min read",
                 colorHex = 0xFFFAF5FF,
@@ -49,7 +49,7 @@ data class Lesson(
             ),
             Lesson(
                 id = 5,
-                emoji = "🆘",
+                emoji = "05",
                 title = "Emergency Fund Basics",
                 duration = "6 min read",
                 colorHex = 0xFFFFF1F2,

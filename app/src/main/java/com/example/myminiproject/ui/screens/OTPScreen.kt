@@ -3,7 +3,6 @@ package com.example.myminiproject.ui.screens
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,31 +18,70 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.myminiproject.R
 import com.example.myminiproject.navigation.Screen
 import com.example.myminiproject.ui.theme.*
+import com.example.myminiproject.ui.viewmodels.AuthUiState
+import com.example.myminiproject.ui.viewmodels.AuthViewModel
+import com.example.myminiproject.utils.NotificationHelper
+import com.example.myminiproject.utils.SessionManager
+import com.example.myminiproject.utils.ToastHelper
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun OTPScreen(
-    navController: NavController,
-    phone: String,
-    name: String,
-    mode: String
+        navController: NavController,
+        phone: String,
+        verificationId: String,
+        name: String,
+        mode: String,
+        sessionManager: SessionManager,
+        authViewModel: AuthViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val notificationHelper = remember { NotificationHelper(context) }
     var otp by remember { mutableStateOf(List(6) { "" }) }
-    var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf("") }
     var resendTimer by remember { mutableIntStateOf(30) }
     var visible by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     val focusRequesters = remember { List(6) { FocusRequester() } }
+
+    val authState by authViewModel.uiState.collectAsState()
+    val loading = authState is AuthUiState.Loading
+
+    if (authState is AuthUiState.Error) {
+        LaunchedEffect(authState) {
+            error = (authState as AuthUiState.Error).message
+            ToastHelper.showInvalidOtp(context)
+        }
+    }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthUiState.VerificationSuccess) {
+            // Start session on successful authentication
+            val userId = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            if (userId != null) {
+                sessionManager.startSession(userId)
+                println("Session started for user: $userId")
+                // Show OTP verified notification
+                notificationHelper.showOtpVerified()
+                ToastHelper.showOtpVerified(context)
+            }
+
+            navController.navigate(Screen.Dashboard.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) { visible = true }
 
@@ -57,100 +95,127 @@ fun OTPScreen(
 
     val maskedPhone = if (phone.length >= 4) "${phone.take(2)}XXXXXX${phone.takeLast(2)}" else phone
 
-    Column(
-        modifier = Modifier.fillMaxSize().background(Gray50)
-    ) {
+    Column(modifier = Modifier.fillMaxSize().background(Gray50)) {
         // Header
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(Color.White)
-                .padding(top = 48.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                modifier =
+                        Modifier.fillMaxWidth()
+                                .background(Color.White)
+                                .padding(top = 48.dp, bottom = 16.dp, start = 16.dp, end = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             IconButton(
-                onClick = { navController.popBackStack() },
-                modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Gray100).size(40.dp)
+                    onClick = { navController.popBackStack() },
+                    modifier =
+                            Modifier.clip(RoundedCornerShape(12.dp)).background(Gray100).size(40.dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Gray600, modifier = Modifier.size(20.dp))
+                Icon(
+                        Icons.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Gray600,
+                        modifier = Modifier.size(20.dp)
+                )
             }
             Box(
-                modifier = Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(Blue600),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("DS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White)
-            }
+                    modifier =
+                            Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(Blue600),
+                    contentAlignment = Alignment.Center
+            ) { Text("DS", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White) }
             Text("DhanSathi", fontWeight = FontWeight.SemiBold, color = Blue900)
         }
 
         // Content
         Column(
-            modifier = Modifier.weight(1f).padding(horizontal = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                modifier = Modifier.weight(1f).padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
         ) {
             AnimatedVisibility(
-                visible = visible,
-                enter = slideInVertically(initialOffsetY = { 20 }) + fadeIn(tween(500))
+                    visible = visible,
+                    enter = slideInVertically(initialOffsetY = { 20 }) + fadeIn(tween(500))
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Box(
-                        modifier = Modifier.size(80.dp).clip(CircleShape).background(Blue50),
-                        contentAlignment = Alignment.Center
+                            modifier = Modifier.size(80.dp).clip(CircleShape).background(Blue50),
+                            contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Blue600, modifier = Modifier.size(36.dp))
+                        Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = Blue600,
+                                modifier = Modifier.size(36.dp)
+                        )
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text("Verify OTP", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Slate800)
+                    Text(
+                            stringResource(R.string.verify_otp),
+                            fontSize = 26.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Slate800
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("We sent a 6-digit code to", fontSize = 15.sp, color = Gray500)
+                    Text(stringResource(R.string.enter_otp), fontSize = 15.sp, color = Gray500)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("+91 $maskedPhone", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Blue600)
+                    Text(
+                            "+91 $maskedPhone",
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = Blue600
+                    )
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // OTP Inputs
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
                     ) {
                         Spacer(modifier = Modifier.weight(1f))
                         otp.forEachIndexed { idx, digit ->
                             OutlinedTextField(
-                                value = digit,
-                                onValueChange = { value ->
-                                    if (value.length <= 1 && value.all { it.isDigit() }) {
-                                        val newOtp = otp.toMutableList()
-                                        newOtp[idx] = value
-                                        otp = newOtp
-                                        error = ""
-                                        if (value.isNotEmpty() && idx < 5) {
-                                            focusRequesters[idx + 1].requestFocus()
+                                    value = digit,
+                                    onValueChange = { value ->
+                                        if (value.length <= 1 && value.all { it.isDigit() }) {
+                                            val newOtp = otp.toMutableList()
+                                            newOtp[idx] = value
+                                            otp = newOtp
+                                            error = ""
+                                            if (value.isNotEmpty() && idx < 5) {
+                                                focusRequesters[idx + 1].requestFocus()
+                                            }
                                         }
-                                    }
-                                },
-                                modifier = Modifier
-                                    .width(48.dp)
-                                    .height(56.dp)
-                                    .focusRequester(focusRequesters[idx]),
-                                textStyle = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 22.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    textAlign = TextAlign.Center,
-                                    color = Blue900
-                                ),
-                                singleLine = true,
-                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = Blue600,
-                                    unfocusedBorderColor = if (digit.isNotEmpty()) Blue600 else Gray200,
-                                    focusedContainerColor = if (digit.isNotEmpty()) Blue50 else Color.White,
-                                    unfocusedContainerColor = if (digit.isNotEmpty()) Blue50 else Color.White
-                                )
+                                    },
+                                    modifier =
+                                            Modifier.width(48.dp)
+                                                    .height(56.dp)
+                                                    .focusRequester(focusRequesters[idx]),
+                                    textStyle =
+                                            androidx.compose.ui.text.TextStyle(
+                                                    fontSize = 22.sp,
+                                                    fontWeight = FontWeight.SemiBold,
+                                                    textAlign = TextAlign.Center,
+                                                    color = Blue900
+                                            ),
+                                    singleLine = true,
+                                    keyboardOptions =
+                                            KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors =
+                                            OutlinedTextFieldDefaults.colors(
+                                                    focusedBorderColor = Blue600,
+                                                    unfocusedBorderColor =
+                                                            if (digit.isNotEmpty()) Blue600
+                                                            else Gray200,
+                                                    focusedContainerColor =
+                                                            if (digit.isNotEmpty()) Blue50
+                                                            else Color.White,
+                                                    unfocusedContainerColor =
+                                                            if (digit.isNotEmpty()) Blue50
+                                                            else Color.White
+                                            )
                             )
                         }
                         Spacer(modifier = Modifier.weight(1f))
@@ -166,13 +231,17 @@ fun OTPScreen(
                     // Resend timer
                     if (resendTimer > 0) {
                         Text(
-                            text = "Resend OTP in ${resendTimer}s",
-                            fontSize = 13.sp,
-                            color = Gray400
+                                text = "${stringResource(R.string.resend_otp)} in ${resendTimer}s",
+                                fontSize = 13.sp,
+                                color = Gray400
                         )
                     } else {
                         TextButton(onClick = { resendTimer = 30 }) {
-                            Text("Resend OTP", fontWeight = FontWeight.SemiBold, color = Blue600)
+                            Text(
+                                    stringResource(R.string.resend_otp),
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = Blue600
+                            )
                         }
                     }
 
@@ -181,32 +250,41 @@ fun OTPScreen(
                     // Verify button
                     val otpCode = otp.joinToString("")
                     Button(
-                        onClick = {
-                            if (otpCode.length == 6) {
-                                loading = true
-                                scope.launch {
-                                    delay(1200)
-                                    loading = false
-                                    navController.navigate(Screen.Dashboard.route) {
-                                        popUpTo(Screen.Splash.route) { inclusive = true }
-                                    }
+                            onClick = {
+                                if (otpCode.length == 6) {
+                                    authViewModel.verifyOtp(verificationId, otpCode, name, mode)
+                                } else {
+                                    ToastHelper.showFieldEmptyError(context, "OTP (all 6 digits)")
                                 }
-                            }
-                        },
-                        enabled = otpCode.length == 6 && !loading,
-                        modifier = Modifier.fillMaxWidth().height(56.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (otpCode.length == 6) Blue600 else Blue400,
-                            disabledContainerColor = Blue400.copy(alpha = 0.5f)
-                        )
+                            },
+                            enabled = otpCode.length == 6 && !loading,
+                            modifier = Modifier.fillMaxWidth().height(56.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors =
+                                    ButtonDefaults.buttonColors(
+                                            containerColor =
+                                                    if (otpCode.length == 6) Blue600 else Blue400,
+                                            disabledContainerColor = Blue400.copy(alpha = 0.5f)
+                                    )
                     ) {
                         if (loading) {
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
+                            CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                            )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Verifying...", color = Color.White, fontWeight = FontWeight.SemiBold)
+                            Text(
+                                    stringResource(R.string.loading),
+                                    color = Color.White,
+                                    fontWeight = FontWeight.SemiBold
+                            )
                         } else {
-                            Text("Verify & Continue", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(
+                                    stringResource(R.string.verify),
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp
+                            )
                         }
                     }
 
@@ -214,16 +292,16 @@ fun OTPScreen(
 
                     // Demo hint
                     Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(containerColor = Amber50)
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = Amber50)
                     ) {
                         Text(
-                            text = "💡 Demo: Enter any 6 digits to continue",
-                            fontSize = 12.sp,
-                            color = Amber600,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth().padding(12.dp)
+                                text = "💡 Demo: Enter any 6 digits to continue",
+                                fontSize = 12.sp,
+                                color = Amber600,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth().padding(12.dp)
                         )
                     }
                 }

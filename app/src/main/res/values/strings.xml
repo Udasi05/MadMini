@@ -1,3 +1,154 @@
 <resources>
-    <string name="app_name">myminiproject</string>
+    <string name="app_name">DhanSathi</string>
+    
+    <!-- Common -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="back">Back</string>
+    <string name="loading">Loading…</string>
+    <string name="error">Error</string>
+    <string name="success">Success</string>
+    <string name="try_again">Try Again</string>
+    
+    <!-- Dashboard -->
+    <string name="good_morning">Good Morning</string>
+    <string name="total_balance">Total Balance</string>
+    <string name="income">Income</string>
+    <string name="expenses">Expenses</string>
+    <string name="add_income">Add\nIncome</string>
+    <string name="add_expense">Add\nExpense</string>
+    <string name="voice_input">Voice\nInput</string>
+    <string name="assistant">Assistant</string>
+    <string name="this_week">This Week</string>
+    <string name="smart_insight">Smart Insight</string>
+    <string name="recent_transactions">Recent Transactions</string>
+    <string name="see_all">See all</string>
+    <string name="no_transactions_yet">No transactions yet</string>
+    <string name="start_tracking">Start tracking your income and expenses</string>
+    
+    <!-- Track Money -->
+    <string name="track_money">Track Money</string>
+    <string name="total_income">Total Income</string>
+    <string name="total_expense">Total Expense</string>
+    <string name="all">All</string>
+    <string name="income_breakdown">Income Breakdown</string>
+    <string name="add_transaction">Add Transaction</string>
+    <string name="description">Description</string>
+    <string name="amount">Amount</string>
+    <string name="select_category">Select Category</string>
+    <string name="transaction_added">Transaction added successfully!</string>
+    
+    <!-- Learn -->
+    <string name="learn_finance">Learn Finance</string>
+    <string name="simple_lessons">Simple lessons for better money decisions</string>
+    <string name="your_progress">Your Progress</string>
+    <string name="completed">Completed</string>
+    <string name="ask_finance_assistant">Ask Finance Assistant</string>
+    <string name="mark_as_complete">Mark as Complete ✓</string>
+    <string name="completed_go_back">✓ Completed! Go Back</string>
+    
+    <!-- Schemes -->
+    <string name="government_schemes">Government Schemes</string>
+    <string name="check_eligibility">Check your eligibility for government schemes</string>
+    <string name="eligible">Eligible</string>
+    <string name="not_eligible">Not Eligible</string>
+    <string name="apply_now">Apply Now</string>
+    <string name="benefits">Benefits</string>
+    <string name="documents_required">Documents Required</string>
+    <string name="eligibility">Eligibility</string>
+    
+    <!-- Profile -->
+    <string name="profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="account">ACCOUNT</string>
+    <string name="support">SUPPORT</string>
+    <string name="notifications">Notifications</string>
+    <string name="enabled">Enabled</string>
+    <string name="disabled">Disabled</string>
+    <string name="language">Language</string>
+    <string name="help_support">Help &amp; Support</string>
+    <string name="faq_contact">FAQ, Contact us</string>
+    <string name="privacy_security">Privacy &amp; Security</string>
+    <string name="government_backed">Government-backed security</string>
+    <string name="rate_app">Rate the App</string>
+    <string name="tell_us">Tell us what you think</string>
+    <string name="log_out">Log Out</string>
+    <string name="silver_member">Silver Member</string>
+    <string name="financial_score">Financial Score: %1$d/100</string>
+    <string name="good">Good!</string>
+    
+    <!-- Edit Profile -->
+    <string name="full_name">Full Name</string>
+    <string name="state">State</string>
+    <string name="state_hint">e.g., Maharashtra</string>
+    <string name="land_holding">Land Holding (Hectares)</string>
+    <string name="land_hint">e.g., 2.5</string>
+    <string name="crops_grown">Crops Grown</string>
+    <string name="crops_hint">e.g., Rice, Wheat, Cotton</string>
+    <string name="save_changes">Save Changes</string>
+    <string name="profile_updated">Profile updated successfully!</string>
+    <string name="tap_to_add_details">Tap to add details</string>
+    
+    <!-- Voice Input -->
+    <string name="speak_to_add">Speak to add transaction</string>
+    <string name="select_language">Select Language</string>
+    <string name="tap_to_speak">Tap to speak</string>
+    <string name="example_voice">Example: \"Aaj 500 rupaye ki sabzi becha\"</string>
+    <string name="you_said">You said:</string>
+    <string name="detected_transaction">Detected Transaction</string>
+    <string name="high">HIGH</string>
+    <string name="medium">MEDIUM</string>
+    <string name="low">LOW</string>
+    <string name="type">Type</string>
+    <string name="category">Category</string>
+    <string name="save_transaction">Save Transaction</string>
+    <string name="processing">Processing…</string>
+    <string name="transaction_saved">Transaction saved successfully!</string>
+    
+    <!-- Login/Signup -->
+    <string name="welcome_back">Welcome Back</string>
+    <string name="login_subtitle">Login to manage your finances</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="create_account">Create Account</string>
+    <string name="signup_subtitle">Start your financial journey</string>
+    <string name="your_name">Your Name</string>
+    <string name="verify_otp">Verify OTP</string>
+    <string name="enter_otp">Enter the 6-digit code sent to</string>
+    <string name="verify">Verify</string>
+    <string name="resend_otp">Resend OTP</string>
+    
+    <!-- Categories -->
+    <string name="farm_income">Farm Income</string>
+    <string name="daily_wage">Daily Wage</string>
+    <string name="business">Business</string>
+    <string name="other_income">Other Income</string>
+    <string name="food_grocery">Food &amp; Grocery</string>
+    <string name="transport">Transport</string>
+    <string name="medical">Medical</string>
+    <string name="education">Education</string>
+    <string name="utilities">Utilities</string>
+    <string name="other">Other</string>
+    
+    <!-- Help & Support -->
+    <string name="submit_ticket">Submit Ticket</string>
+    <string name="ticket_subject">Subject</string>
+    <string name="ticket_description">Describe your issue</string>
+    <string name="submit">Submit</string>
+    <string name="my_tickets">My Tickets</string>
+    <string name="ticket_submitted">Ticket submitted successfully!</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="email">Email</string>
+    <string name="phone">Phone</string>
+    
+    <!-- Notifications -->
+    <string name="notification_preferences">Notification Preferences</string>
+    <string name="scheme_updates">Scheme Updates</string>
+    <string name="transaction_reminders">Transaction Reminders</string>
+    <string name="learning_tips">Learning Tips</string>
+    <string name="app_updates">App Updates</string>
+    <string name="preferences_saved">Preferences saved successfully!</string>
 </resources>

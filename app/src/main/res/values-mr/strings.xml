@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">धनसाथी</string>
+    
+    <!-- Common -->
+    <string name="ok">ठीक आहे</string>
+    <string name="cancel">रद्द करा</string>
+    <string name="save">जतन करा</string>
+    <string name="delete">हटवा</string>
+    <string name="edit">संपादित करा</string>
+    <string name="back">मागे</string>
+    <string name="loading">लोड होत आहे…</string>
+    <string name="error">त्रुटी</string>
+    <string name="success">यश</string>
+    <string name="try_again">पुन्हा प्रयत्न करा</string>
+    
+    <!-- Dashboard -->
+    <string name="good_morning">सुप्रभात</string>
+    <string name="total_balance">एकूण शिल्लक</string>
+    <string name="income">उत्पन्न</string>
+    <string name="expenses">खर्च</string>
+    <string name="add_income">उत्पन्न\nजोडा</string>
+    <string name="add_expense">खर्च\nजोडा</string>
+    <string name="voice_input">आवाज\nइनपुट</string>
+    <string name="assistant">सहाय्यक</string>
+    <string name="this_week">या आठवड्यात</string>
+    <string name="smart_insight">स्मार्ट माहिती</string>
+    <string name="recent_transactions">अलीकडील व्यवहार</string>
+    <string name="see_all">सर्व पहा</string>
+    <string name="no_transactions_yet">अद्याप कोणतेही व्यवहार नाहीत</string>
+    <string name="start_tracking">आपले उत्पन्न आणि खर्च ट्रॅक करणे सुरू करा</string>
+    
+    <!-- Track Money -->
+    <string name="track_money">पैसे ट्रॅक करा</string>
+    <string name="total_income">एकूण उत्पन्न</string>
+    <string name="total_expense">एकूण खर्च</string>
+    <string name="all">सर्व</string>
+    <string name="income_breakdown">उत्पन्न तपशील</string>
+    <string name="add_transaction">व्यवहार जोडा</string>
+    <string name="description">वर्णन</string>
+    <string name="amount">रक्कम</string>
+    <string name="select_category">श्रेणी निवडा</string>
+    <string name="transaction_added">व्यवहार यशस्वीरित्या जोडला!</string>
+    
+    <!-- Learn -->
+    <string name="learn_finance">वित्त शिका</string>
+    <string name="simple_lessons">चांगल्या पैशाच्या निर्णयांसाठी सोपे धडे</string>
+    <string name="your_progress">तुमची प्रगती</string>
+    <string name="completed">पूर्ण</string>
+    <string name="ask_finance_assistant">वित्त सहाय्यकाला विचारा</string>
+    <string name="mark_as_complete">पूर्ण म्हणून चिन्हांकित करा ✓</string>
+    <string name="completed_go_back">✓ पूर्ण! परत जा</string>
+    
+    <!-- Schemes -->
+    <string name="government_schemes">सरकारी योजना</string>
+    <string name="check_eligibility">सरकारी योजनांसाठी आपली पात्रता तपासा</string>
+    <string name="eligible">पात्र</string>
+    <string name="not_eligible">पात्र नाही</string>
+    <string name="apply_now">आता अर्ज करा</string>
+    <string name="benefits">फायदे</string>
+    <string name="documents_required">आवश्यक कागदपत्रे</string>
+    <string name="eligibility">पात्रता</string>
+    
+    <!-- Profile -->
+    <string name="profile">प्रोफाइल</string>
+    <string name="edit_profile">प्रोफाइल संपादित करा</string>
+    <string name="account">खाते</string>
+    <string name="support">समर्थन</string>
+    <string name="notifications">सूचना</string>
+    <string name="enabled">सक्षम</string>
+    <string name="disabled">अक्षम</string>
+    <string name="language">भाषा</string>
+    <string name="help_support">मदत आणि समर्थन</string>
+    <string name="faq_contact">वारंवार विचारले जाणारे प्रश्न, आमच्याशी संपर्क साधा</string>
+    <string name="privacy_security">गोपनीयता आणि सुरक्षा</string>
+    <string name="government_backed">सरकार समर्थित सुरक्षा</string>
+    <string name="rate_app">अॅप रेट करा</string>
+    <string name="tell_us">तुम्हाला काय वाटते ते आम्हाला सांगा</string>
+    <string name="log_out">लॉग आउट</string>
+    <string name="silver_member">सिल्व्हर सदस्य</string>
+    <string name="financial_score">आर्थिक स्कोअर: %1$d/100</string>
+    <string name="good">चांगले!</string>
+    
+    <!-- Edit Profile -->
+    <string name="full_name">पूर्ण नाव</string>
+    <string name="state">राज्य</string>
+    <string name="state_hint">उदा., महाराष्ट्र</string>
+    <string name="land_holding">जमीन धारण (हेक्टर)</string>
+    <string name="land_hint">उदा., 2.5</string>
+    <string name="crops_grown">पिके उगवली</string>
+    <string name="crops_hint">उदा., तांदूळ, गहू, कापूस</string>
+    <string name="save_changes">बदल जतन करा</string>
+    <string name="profile_updated">प्रोफाइल यशस्वीरित्या अपडेट केले!</string>
+    <string name="tap_to_add_details">तपशील जोडण्यासाठी टॅप करा</string>
+    
+    <!-- Voice Input -->
+    <string name="speak_to_add">व्यवहार जोडण्यासाठी बोला</string>
+    <string name="select_language">भाषा निवडा</string>
+    <string name="tap_to_speak">बोलण्यासाठी टॅप करा</string>
+    <string name="example_voice">उदाहरण: \"आज 500 रुपये भाजी विकली\"</string>
+    <string name="you_said">तुम्ही म्हणालात:</string>
+    <string name="detected_transaction">ओळखला गेलेला व्यवहार</string>
+    <string name="high">उच्च</string>
+    <string name="medium">मध्यम</string>
+    <string name="low">कमी</string>
+    <string name="type">प्रकार</string>
+    <string name="category">श्रेणी</string>
+    <string name="save_transaction">व्यवहार जतन करा</string>
+    <string name="processing">प्रक्रिया करत आहे…</string>
+    <string name="transaction_saved">व्यवहार यशस्वीरित्या जतन केला!</string>
+    
+    <!-- Login/Signup -->
+    <string name="welcome_back">परत स्वागत आहे</string>
+    <string name="login_subtitle">आपल्या वित्ताचे व्यवस्थापन करण्यासाठी लॉगिन करा</string>
+    <string name="phone_number">फोन नंबर</string>
+    <string name="send_otp">OTP पाठवा</string>
+    <string name="create_account">खाते तयार करा</string>
+    <string name="signup_subtitle">आपला आर्थिक प्रवास सुरू करा</string>
+    <string name="your_name">तुमचे नाव</string>
+    <string name="verify_otp">OTP सत्यापित करा</string>
+    <string name="enter_otp">पाठवलेला 6 अंकी कोड प्रविष्ट करा</string>
+    <string name="verify">सत्यापित करा</string>
+    <string name="resend_otp">OTP पुन्हा पाठवा</string>
+    
+    <!-- Categories -->
+    <string name="farm_income">शेती उत्पन्न</string>
+    <string name="daily_wage">दैनिक मजुरी</string>
+    <string name="business">व्यवसाय</string>
+    <string name="other_income">इतर उत्पन्न</string>
+    <string name="food_grocery">अन्न आणि किराणा</string>
+    <string name="transport">वाहतूक</string>
+    <string name="medical">वैद्यकीय</string>
+    <string name="education">शिक्षण</string>
+    <string name="utilities">उपयोगिता</string>
+    <string name="other">इतर</string>
+    
+    <!-- Help & Support -->
+    <string name="submit_ticket">तिकीट सबमिट करा</string>
+    <string name="ticket_subject">विषय</string>
+    <string name="ticket_description">आपली समस्या वर्णन करा</string>
+    <string name="submit">सबमिट करा</string>
+    <string name="my_tickets">माझी तिकिटे</string>
+    <string name="ticket_submitted">तिकीट यशस्वीरित्या सबमिट केले!</string>
+    <string name="contact_us">आमच्याशी संपर्क साधा</string>
+    <string name="email">ईमेल</string>
+    <string name="phone">फोन</string>
+    
+    <!-- Notifications -->
+    <string name="notification_preferences">सूचना प्राधान्ये</string>
+    <string name="scheme_updates">योजना अपडेट</string>
+    <string name="transaction_reminders">व्यवहार स्मरणपत्रे</string>
+    <string name="learning_tips">शिकण्याच्या टिपा</string>
+    <string name="app_updates">अॅप अपडेट</string>
+    <string name="preferences_saved">प्राधान्ये यशस्वीरित्या जतन केली!</string>
+</resources>

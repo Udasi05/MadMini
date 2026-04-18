@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 // DhanSathi Brand Colors
 val Blue900 = Color(0xFF1E3A8A)
+val Blue800 = Color(0xFF2E529D)
 val Blue700 = Color(0xFF1D4ED8)
 val Blue600 = Color(0xFF2563EB)
 val Blue500 = Color(0xFF3B82F6)
@@ -22,14 +23,19 @@ val Green50 = Color(0xFFF0FDF4)
 val GreenDark = Color(0xFF14532D)
 
 // Red / Expense
+val Red600 = Color(0xFFDC2626)
 val Red500 = Color(0xFFEF4444)
 val Red400 = Color(0xFFF87171)
 val Red100 = Color(0xFFFEE2E2)
+
+val Red50 = Color(0xFFFFF5F5)
+
 
 // Purple / Insight
 val Purple600 = Color(0xFF7C3AED)
 val Purple500 = Color(0xFF8B5CF6)
 val Purple400 = Color(0xFFA78BFA)
+val Purple200 = Color(0xFFDDD6FE)
 val Purple100 = Color(0xFFEDE9FE)
 
 // Yellow / Warning
@@ -40,7 +46,8 @@ val Amber100 = Color(0xFFFEF3C7)
 val Amber50 = Color(0xFFFFFBEB)
 
 // Orange
-val Orange500 = Color(0xFFF97316)
+val Orange600 = Color(0xFFF97316)
+val Orange500 = Color(0xFFFA8C16)
 
 // Indigo
 val Indigo500 = Color(0xFF6366F1)

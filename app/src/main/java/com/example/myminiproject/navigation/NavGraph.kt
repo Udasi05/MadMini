@@ -15,11 +15,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myminiproject.ui.components.BottomNavBar
 import com.example.myminiproject.ui.screens.*
+import com.example.myminiproject.utils.SessionManager
+//import kotlinx.coroutines.flow.collectAsState
 
 @Composable
-fun NavGraph(navController: NavHostController = rememberNavController()) {
+fun NavGraph(
+    navController: NavHostController = rememberNavController(),
+    sessionManager: SessionManager
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val isSessionValid by sessionManager.isSessionValid.collectAsState()
 
     val bottomNavRoutes = listOf(
         Screen.Dashboard.route,
@@ -29,6 +35,16 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
         Screen.Profile.route
     )
     val showBottomNav = currentRoute in bottomNavRoutes
+
+    // Check session validity and redirect to login if expired
+    LaunchedEffect(isSessionValid, currentRoute) {
+        if (!isSessionValid && currentRoute in bottomNavRoutes) {
+            println("Session expired, redirecting to login")
+            navController.navigate(Screen.Login.route) {
+                popUpTo(0) { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -47,11 +63,11 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             popExitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             composable(Screen.Splash.route) {
-                SplashScreen(navController = navController)
+                SplashScreen(navController = navController, sessionManager = sessionManager)
             }
 
             composable(Screen.Login.route) {
-                LoginScreen(navController = navController)
+                LoginScreen(navController = navController, sessionManager = sessionManager)
             }
 
             composable(Screen.SignUp.route) {
@@ -62,18 +78,22 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
                 route = Screen.OTP.route,
                 arguments = listOf(
                     navArgument("phone") { type = NavType.StringType },
+                    navArgument("verificationId") { type = NavType.StringType },
                     navArgument("name") { type = NavType.StringType },
                     navArgument("mode") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
                 val phone = backStackEntry.arguments?.getString("phone") ?: ""
+                val verificationId = backStackEntry.arguments?.getString("verificationId") ?: ""
                 val name = backStackEntry.arguments?.getString("name") ?: ""
                 val mode = backStackEntry.arguments?.getString("mode") ?: "login"
                 OTPScreen(
                     navController = navController,
                     phone = phone,
+                    verificationId = verificationId,
                     name = name,
-                    mode = mode
+                    mode = mode,
+                    sessionManager = sessionManager
                 )
             }
 
@@ -94,12 +114,42 @@ fun NavGraph(navController: NavHostController = rememberNavController()) {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen(navController = navController)
+                ProfileScreen(navController = navController, sessionManager = sessionManager)
+            }
+
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen(navController = navController)
+            }
+
+            composable(Screen.VoiceInput.route) {
+                VoiceInputScreen(navController = navController)
             }
 
             composable(Screen.ChatBot.route) {
                 ChatBotScreen(navController = navController)
             }
+
+            composable(Screen.HelpSupport.route) {
+                HelpSupportScreen(navController = navController)
+            }
+
+            composable(Screen.MyTickets.route) {
+                MyTicketsScreen(navController = navController)
+            }
+
+            composable(Screen.Analytics.route) {
+                AnalyticsScreen(navController = navController)
+            }
+
+            composable(Screen.DataExport.route) {
+                DataExportScreen(navController = navController)
+            }
+
+            composable(Screen.NotificationPreferences.route) {
+                NotificationPreferencesScreen(navController = navController)
+            }
         }
     }
 }
+
+

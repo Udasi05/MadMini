@@ -1,6 +1,5 @@
 package com.example.myminiproject.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -23,23 +22,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.myminiproject.data.model.Scheme
+import com.example.myminiproject.data.api.dto.SchemeEligibility
 import com.example.myminiproject.ui.theme.*
+import com.example.myminiproject.ui.viewmodels.SchemesUiState
+import com.example.myminiproject.ui.viewmodels.SchemesViewModel
 
 @Composable
-fun SchemesScreen(navController: NavController) {
-    val schemes = remember { Scheme.getAllSchemes() }
+fun SchemesScreen(
+    navController: NavController,
+    viewModel: SchemesViewModel = viewModel()
+) {
+    val uiState by viewModel.uiState.collectAsState()
+    
     var search by remember { mutableStateOf("") }
     var activeCategory by remember { mutableStateOf("All") }
-    var selectedScheme by remember { mutableStateOf<Scheme?>(null) }
-
-    val filtered = schemes.filter { s ->
-        val matchCat = activeCategory == "All" || s.category == activeCategory
-        val matchSearch = s.name.lowercase().contains(search.lowercase()) ||
-                s.fullName.lowercase().contains(search.lowercase())
-        matchCat && matchSearch
-    }
+    var selectedScheme by remember { mutableStateOf<SchemeEligibility?>(null) }
 
     Column(
         modifier = Modifier
@@ -58,13 +57,13 @@ fun SchemesScreen(navController: NavController) {
                         end = Offset(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY)
                     )
                 )
-                .padding(start = 20.dp, end = 20.dp, top = 48.dp, bottom = 20.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 32.dp, bottom = 16.dp)
         ) {
             Text("Government Schemes", fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
             Spacer(modifier = Modifier.height(4.dp))
             Text("Welfare schemes for farmers & workers", fontSize = 13.sp, color = Green200)
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Search
             OutlinedTextField(
@@ -87,101 +86,107 @@ fun SchemesScreen(navController: NavController) {
             )
         }
 
-        // Category Tabs
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Scheme.categories.forEach { cat ->
-                val isActive = activeCategory == cat
-                FilterChip(
-                    selected = isActive,
-                    onClick = { activeCategory = cat },
-                    label = { Text(cat, fontSize = 13.sp, fontWeight = if (isActive) FontWeight.SemiBold else FontWeight.Normal) },
-                    shape = RoundedCornerShape(20.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Green600,
-                        selectedLabelColor = Color.White,
-                        containerColor = Color.White,
-                        labelColor = Gray500
-                    ),
-                    border = if (isActive) null else FilterChipDefaults.filterChipBorder(enabled = true, selected = false, borderColor = Gray200)
-                )
+        when (val state = uiState) {
+            is SchemesUiState.Loading -> {
+                Box(modifier = Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = Green600)
+                }
             }
-        }
-
-        // Schemes List
-        if (filtered.isEmpty()) {
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(40.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text("🔍", fontSize = 32.sp)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("No schemes found", fontSize = 14.sp, color = Gray400)
+            is SchemesUiState.Error -> {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(40.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(state.message, color = Red400, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = { viewModel.fetchSchemes() }) {
+                        Text("Retry")
+                    }
+                }
             }
-        } else {
-            Column(
-                modifier = Modifier.padding(horizontal = 20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                filtered.forEach { scheme ->
+            is SchemesUiState.Success -> {
+                // Summary AI Box
+                if (state.summary.isNotEmpty()) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { selectedScheme = scheme },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                            .padding(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = Green100),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(Gray50),
-                                contentAlignment = Alignment.Center
+                        Row(modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.Top) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = Green600, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(state.summary, fontSize = 13.sp, color = GreenDark, lineHeight = 18.sp)
+                        }
+                    }
+                }
+
+                val filtered = state.schemes.filter { s ->
+                    s.schemeName.lowercase().contains(search.lowercase())
+                }
+
+                // Schemes List
+                if (filtered.isEmpty()) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth().padding(40.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(40.dp), tint = Gray400)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text("No schemes found", fontSize = 14.sp, color = Gray400)
+                    }
+                } else {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        filtered.forEach { scheme ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { selectedScheme = scheme },
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color.White),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                             ) {
-                                Text(scheme.emoji, fontSize = 24.sp)
-                            }
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    Text(scheme.name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Gray800)
-                                    Text(
-                                        scheme.tag,
-                                        fontSize = 9.sp,
-                                        fontWeight = FontWeight.SemiBold,
-                                        color = Color.White,
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(Color(scheme.tagColorHex))
-                                            .padding(horizontal = 6.dp, vertical = 2.dp)
-                                    )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Box(
+                                        modifier = Modifier.size(48.dp).clip(RoundedCornerShape(16.dp)).background(Green100),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            Icons.Default.Description,
+                                            contentDescription = null,
+                                            tint = Green600,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                            Text(scheme.schemeName, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Gray800)
+                                        }
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text(
+                                            "Yield Benefit: ${scheme.benefits}",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Medium,
+                                            color = Green600,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                    Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Gray400, modifier = Modifier.size(16.dp))
                                 }
-                                Spacer(modifier = Modifier.height(2.dp))
-                                Text(scheme.fullName, fontSize = 12.sp, color = Gray400, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    "Benefit: ${scheme.benefit}",
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(scheme.benefitColorHex),
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(Color(scheme.benefitColorHex).copy(alpha = 0.1f))
-                                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                                )
                             }
-                            Icon(Icons.Default.ChevronRight, contentDescription = null, tint = Gray400, modifier = Modifier.size(16.dp))
                         }
                     }
                 }
             }
         }
-
         Spacer(modifier = Modifier.height(24.dp))
     }
 
@@ -193,10 +198,11 @@ fun SchemesScreen(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SchemeDetailSheet(scheme: Scheme, onDismiss: () -> Unit) {
+private fun SchemeDetailSheet(scheme: SchemeEligibility, onDismiss: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         containerColor = Color.White
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
@@ -212,10 +218,22 @@ private fun SchemeDetailSheet(scheme: Scheme, onDismiss: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(scheme.emoji, fontSize = 28.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.White.copy(alpha = 0.2f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Default.Description,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                     Column {
-                        Text(scheme.name, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
-                        Text(scheme.fullName, fontSize = 11.sp, color = Green200)
+                        Text(scheme.schemeName, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
                 IconButton(onClick = onDismiss) {
@@ -226,71 +244,58 @@ private fun SchemeDetailSheet(scheme: Scheme, onDismiss: () -> Unit) {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
-                    .padding(20.dp),
+                    .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Benefit badge
+                // Background & Eligibility status
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(scheme.benefitColorHex).copy(alpha = 0.1f))
+                        .background(if(scheme.eligible) Green100 else Red100)
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("🎁", fontSize = 20.sp)
+                    Icon(
+                        if(scheme.eligible) Icons.Default.CheckCircle else Icons.Default.Cancel, 
+                        contentDescription = null, 
+                        tint = if(scheme.eligible) Green600 else Red400 
+                    )
                     Column {
-                        Text("Benefit", fontSize = 11.sp, color = Gray500)
-                        Text(scheme.benefit, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color(scheme.benefitColorHex))
+                        Text("Justification", fontSize = 11.sp, color = Gray500)
+                        Text(scheme.justification, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Gray800)
                     }
                 }
 
-                // About
+                // Benefits
                 Column {
-                    Text("About this Scheme", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Slate800)
+                    Text("Benefits", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Slate800)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(scheme.description, fontSize = 13.sp, color = Gray600, lineHeight = 22.sp)
-                }
-
-                // Eligibility
-                Column {
-                    Text("Eligibility", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Slate800)
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(scheme.eligibility, fontSize = 13.sp, color = Gray600)
+                    Text(scheme.benefits, fontSize = 13.sp, color = Gray600, lineHeight = 22.sp)
                 }
 
                 // Documents
-                Column {
-                    Text("Documents Required", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Slate800)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    scheme.documents.forEach { doc ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier.padding(vertical = 2.dp)
-                        ) {
-                            Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Green500))
-                            Text(doc, fontSize = 13.sp, color = Gray600)
+                if(scheme.documentsRequired.isNotEmpty()) {
+                    Column {
+                        Text("Documents Required", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = Slate800)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        scheme.documentsRequired.forEach { doc ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            ) {
+                                Box(modifier = Modifier.size(6.dp).clip(CircleShape).background(Green500))
+                                Text(doc, fontSize = 13.sp, color = Gray600)
+                            }
                         }
-                    }
-                }
-
-                // How to Apply
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = Green50)
-                ) {
-                    Column(modifier = Modifier.padding(12.dp)) {
-                        Text("📍 How to Apply", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Green600)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(scheme.howToApply, fontSize = 13.sp, color = Color(0xFF15803D), lineHeight = 20.sp)
                     }
                 }
             }
 
             // Buttons
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
@@ -301,15 +306,25 @@ private fun SchemeDetailSheet(scheme: Scheme, onDismiss: () -> Unit) {
                 ) {
                     Text("Close", color = Gray500, fontWeight = FontWeight.Medium)
                 }
-                Button(
-                    onClick = { /* Open link */ },
-                    modifier = Modifier.weight(1f).height(48.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Green600)
-                ) {
-                    Text("Apply Now", fontWeight = FontWeight.SemiBold)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(14.dp))
+                
+                if (scheme.applicationLink.isNotBlank()) {
+                    Button(
+                        onClick = { 
+                            try {
+                                val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(scheme.applicationLink))
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        },
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Green600)
+                    ) {
+                        Text("Apply Now", fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(Icons.Default.OpenInNew, contentDescription = null, modifier = Modifier.size(14.dp))
+                    }
                 }
             }
 

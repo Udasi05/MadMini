@@ -19,27 +19,50 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myminiproject.R
 import com.example.myminiproject.navigation.Screen
 import com.example.myminiproject.ui.theme.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myminiproject.ui.viewmodels.AuthUiState
+import com.example.myminiproject.ui.viewmodels.AuthViewModel
+
 @Composable
-fun SignUpScreen(navController: NavController) {
+fun SignUpScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel()
+) {
+    val context = LocalContext.current
     var name by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
-    var loading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     var visible by remember { mutableStateOf(false) }
     val isValid = name.isNotBlank() && phone.length == 10
+    
+    val authState by authViewModel.uiState.collectAsState()
+    val loading = authState is AuthUiState.Loading
 
     LaunchedEffect(Unit) { visible = true }
+
+    LaunchedEffect(authState) {
+        if (authState is AuthUiState.CodeSent) {
+            val verificationId = (authState as AuthUiState.CodeSent).verificationId
+            navController.navigate(Screen.OTP.createRoute(phone, verificationId, name, "signup"))
+        } else if (authState is AuthUiState.VerificationSuccess) {
+            navController.navigate(Screen.Dashboard.route) {
+                popUpTo(Screen.Splash.route) { inclusive = true }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier.fillMaxSize().background(Gray50)
@@ -57,7 +80,7 @@ fun SignUpScreen(navController: NavController) {
                 onClick = { navController.popBackStack() },
                 modifier = Modifier.clip(RoundedCornerShape(12.dp)).background(Gray100).size(40.dp)
             ) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back", tint = Gray600, modifier = Modifier.size(20.dp))
+                Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.back), tint = Gray600, modifier = Modifier.size(20.dp))
             }
             Box(
                 modifier = Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(Blue600),
@@ -87,14 +110,14 @@ fun SignUpScreen(navController: NavController) {
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    Text("Create your account", fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Slate800)
+                    Text(stringResource(R.string.create_account), fontSize = 26.sp, fontWeight = FontWeight.Bold, color = Slate800)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Tell us about yourself to get started", fontSize = 15.sp, color = Gray500, textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.signup_subtitle), fontSize = 15.sp, color = Gray500, textAlign = TextAlign.Center)
 
                     Spacer(modifier = Modifier.height(32.dp))
 
                     // Name Input
-                    Text("Your Name", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Gray700, modifier = Modifier.fillMaxWidth())
+                    Text(stringResource(R.string.your_name), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Gray700, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = name,
@@ -114,7 +137,7 @@ fun SignUpScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Phone Input
-                    Text("Phone Number", fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Gray700, modifier = Modifier.fillMaxWidth())
+                    Text(stringResource(R.string.phone_number), fontSize = 15.sp, fontWeight = FontWeight.Medium, color = Gray700, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -151,11 +174,9 @@ fun SignUpScreen(navController: NavController) {
                     Button(
                         onClick = {
                             if (isValid) {
-                                loading = true
-                                scope.launch {
-                                    delay(1000)
-                                    loading = false
-                                    navController.navigate(Screen.OTP.createRoute(phone, name, "signup"))
+                                val activity = context as? android.app.Activity
+                                if (activity != null) {
+                                    authViewModel.sendOtp(phone, activity)
                                 }
                             }
                         },
@@ -170,11 +191,11 @@ fun SignUpScreen(navController: NavController) {
                         if (loading) {
                             CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White, strokeWidth = 2.dp)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Sending OTP...", color = Color.White, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.loading), color = Color.White, fontWeight = FontWeight.SemiBold)
                         } else {
                             Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Send OTP", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
+                            Text(stringResource(R.string.send_otp), fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
                         }
                     }
 

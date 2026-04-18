@@ -21,7 +21,7 @@ data class Scheme(
         fun getAllSchemes(): List<Scheme> = listOf(
             Scheme(
                 id = 1, name = "PM-KISAN", fullName = "Pradhan Mantri Kisan Samman Nidhi",
-                category = "Farmers", emoji = "🌾", benefit = "₹6,000/year", benefitColorHex = 0xFF10B981,
+                category = "Farmers", emoji = "01", benefit = "₹6,000/year", benefitColorHex = 0xFF10B981,
                 description = "Direct income support to small and marginal farmers. ₹6,000 per year is given in 3 installments of ₹2,000 each directly to bank accounts.",
                 eligibility = "All landholding farmers with less than 2 hectares land",
                 howToApply = "Visit nearest Common Service Centre (CSC) or apply online at pmkisan.gov.in",
@@ -30,7 +30,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 2, name = "Kisan Credit Card", fullName = "Kisan Credit Card (KCC)",
-                category = "Farmers", emoji = "💳", benefit = "Loan at 4%", benefitColorHex = 0xFF2563EB,
+                category = "Farmers", emoji = "02", benefit = "Loan at 4%", benefitColorHex = 0xFF2563EB,
                 description = "Short-term credit facility for farmers to meet agricultural and personal needs. Interest subvention makes it effectively 4% per annum.",
                 eligibility = "All farmers, fishermen, and animal husbandry farmers",
                 howToApply = "Visit any nationalized bank or Regional Rural Bank (RRB) with land documents",
@@ -39,7 +39,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 3, name = "PM Mudra Loan", fullName = "Pradhan Mantri MUDRA Yojana",
-                category = "Business", emoji = "🏪", benefit = "Up to ₹10 lakh", benefitColorHex = 0xFF8B5CF6,
+                category = "Business", emoji = "03", benefit = "Up to ₹10 lakh", benefitColorHex = 0xFF8B5CF6,
                 description = "Collateral-free loans for small businesses. Three categories: Shishu (up to ₹50K), Kishore (₹50K-5L), Tarun (₹5L-10L).",
                 eligibility = "Non-farm micro and small enterprises",
                 howToApply = "Apply at any bank, NBFC, or MFI. Online at mudra.org.in",
@@ -48,7 +48,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 4, name = "PM SVANidhi", fullName = "PM Street Vendor's AtmaNirbhar Nidhi",
-                category = "Business", emoji = "🛒", benefit = "₹10K - ₹50K", benefitColorHex = 0xFFF59E0B,
+                category = "Business", emoji = "04", benefit = "₹10K - ₹50K", benefitColorHex = 0xFFF59E0B,
                 description = "Collateral-free working capital loans for street vendors. Start with ₹10,000, scale up to ₹50,000 with timely repayment.",
                 eligibility = "Street vendors with vending certificate",
                 howToApply = "Apply on pmsvanidhi.mohua.gov.in or through city's Urban Local Body",
@@ -57,7 +57,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 5, name = "Ayushman Bharat", fullName = "Ayushman Bharat PM-JAY",
-                category = "Health", emoji = "🏥", benefit = "₹5 lakh/year", benefitColorHex = 0xFFEF4444,
+                category = "Health", emoji = "05", benefit = "₹5 lakh/year", benefitColorHex = 0xFFEF4444,
                 description = "Free health cover of ₹5 lakh per family per year for secondary and tertiary hospitalization. Covers 1,500+ medical procedures.",
                 eligibility = "Poor and vulnerable families as per SECC 2011 data",
                 howToApply = "Visit empanelled hospital with Aadhaar. Check eligibility at pmjay.gov.in",
@@ -66,7 +66,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 6, name = "PMJJBY", fullName = "Pradhan Mantri Jeevan Jyoti Bima Yojana",
-                category = "Health", emoji = "🛡️", benefit = "₹2 lakh cover", benefitColorHex = 0xFF10B981,
+                category = "Health", emoji = "06", benefit = "₹2 lakh cover", benefitColorHex = 0xFF10B981,
                 description = "Life insurance cover of ₹2 lakh for death due to any cause. Premium is only ₹330 per year — less than ₹1 per day!",
                 eligibility = "Age 18-50 years with bank account",
                 howToApply = "Apply at your bank branch or through net banking",
@@ -75,7 +75,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 7, name = "PMAY-Gramin", fullName = "Pradhan Mantri Awas Yojana - Gramin",
-                category = "Housing", emoji = "🏠", benefit = "₹1.2-1.3 lakh", benefitColorHex = 0xFF0891B2,
+                category = "Housing", emoji = "07", benefit = "₹1.2-1.3 lakh", benefitColorHex = 0xFF0891B2,
                 description = "Financial assistance for construction of pucca houses for rural poor. ₹1.2 lakh in plains and ₹1.3 lakh in hilly areas.",
                 eligibility = "Houseless or those living in kutcha houses as per SECC data",
                 howToApply = "Contact your Gram Panchayat or Block Development Officer",
@@ -84,7 +84,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 8, name = "Ujjwala Yojana", fullName = "Pradhan Mantri Ujjwala Yojana",
-                category = "Women", emoji = "🔥", benefit = "Free LPG connection", benefitColorHex = 0xFFF97316,
+                category = "Women", emoji = "08", benefit = "Free LPG connection", benefitColorHex = 0xFFF97316,
                 description = "Free LPG connection to women from BPL households. Includes a free gas stove and first cylinder refill.",
                 eligibility = "Women from BPL families not having existing LPG connection",
                 howToApply = "Visit nearest LPG distributor with KYC documents",
@@ -93,7 +93,7 @@ data class Scheme(
             ),
             Scheme(
                 id = 9, name = "Jan Dhan Yojana", fullName = "Pradhan Mantri Jan Dhan Yojana",
-                category = "Women", emoji = "🏦", benefit = "Zero balance account", benefitColorHex = 0xFF6366F1,
+                category = "Women", emoji = "09", benefit = "Zero balance account", benefitColorHex = 0xFF6366F1,
                 description = "Free basic bank account with zero minimum balance. Includes free RuPay debit card with ₹1 lakh accident insurance.",
                 eligibility = "Any Indian citizen above 10 years of age",
                 howToApply = "Visit any bank with Aadhaar card",

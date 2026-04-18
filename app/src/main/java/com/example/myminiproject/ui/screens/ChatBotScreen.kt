@@ -1,6 +1,5 @@
 package com.example.myminiproject.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -21,78 +20,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.myminiproject.ui.theme.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.myminiproject.ui.viewmodels.ChatBotViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
-data class ChatMessage(
-    val id: String,
-    val text: String,
-    val sender: String, // "user" or "bot"
-    val timestamp: Date = Date()
-)
-
 @Composable
-fun ChatBotScreen(navController: NavController) {
-    var messages by remember {
-        mutableStateOf(
-            listOf(
-                ChatMessage(
-                    id = "1",
-                    text = "Hello! I'm your DhanSathi assistant. How can I help you with your finances today? 👋",
-                    sender = "bot"
-                )
-            )
-        )
-    }
+fun ChatBotScreen(
+    navController: NavController,
+    viewModel: ChatBotViewModel = viewModel()
+) {
+    val messages by viewModel.messages.collectAsState()
+    val isTyping by viewModel.isTyping.collectAsState()
+
     var inputValue by remember { mutableStateOf("") }
-    var isTyping by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
     val timeFormat = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
 
     val quickActions = listOf("Check my balance", "How to save more?", "Analyze my spending", "Loan options")
-
-    fun getBotResponse(input: String): String {
-        val lower = input.lowercase()
-        return when {
-            lower.contains("saving") || lower.contains("save") ->
-                "Based on your recent transactions, you could save approximately ₹1,200 more per month by reducing recurring entertainment subscriptions. Would you like to see a breakdown?"
-            lower.contains("balance") ->
-                "Your current total balance is ₹24,850. You have ₹18,400 in income and ₹7,550 in expenses this month."
-            lower.contains("spending") || lower.contains("expense") || lower.contains("analyze") ->
-                "Your highest spending category this week is 'Groceries' at ₹3,200. This is 15% lower than your average! Great job! 📉"
-            lower.contains("loan") ->
-                "Government loans like Kisan Credit Card and Mudra Loan offer rates of 4-12%. Much cheaper than private lenders. Visit your nearest bank to apply."
-            else ->
-                "That's an interesting question about your finances. I'm currently analyzing your data to give you the best advice. Can you tell me more about your specific goal?"
-        }
-    }
-
-    fun sendMessage() {
-        if (inputValue.isBlank()) return
-        val userMsg = inputValue.trim()
-        messages = messages + ChatMessage(
-            id = System.currentTimeMillis().toString(),
-            text = userMsg,
-            sender = "user"
-        )
-        inputValue = ""
-        isTyping = true
-
-        scope.launch {
-            delay(1500)
-            messages = messages + ChatMessage(
-                id = (System.currentTimeMillis() + 1).toString(),
-                text = getBotResponse(userMsg),
-                sender = "bot"
-            )
-            isTyping = false
-        }
-    }
 
     // Auto-scroll when messages change
     LaunchedEffect(messages.size, isTyping) {
@@ -299,17 +246,20 @@ fun ChatBotScreen(navController: NavController) {
                                 Icon(Icons.Default.Mic, contentDescription = "Voice", tint = Gray400, modifier = Modifier.size(20.dp))
                             }
                             IconButton(
-                                onClick = { sendMessage() },
-                                enabled = inputValue.isNotBlank(),
+                                onClick = {
+                                    viewModel.sendMessage(inputValue)
+                                    inputValue = ""
+                                },
+                                enabled = inputValue.isNotBlank() && !isTyping,
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(RoundedCornerShape(12.dp))
-                                    .background(if (inputValue.isNotBlank()) Blue600 else Gray200)
+                                    .background(if (inputValue.isNotBlank() && !isTyping) Blue600 else Gray200)
                             ) {
                                 Icon(
                                     Icons.Default.Send,
                                     contentDescription = "Send",
-                                    tint = if (inputValue.isNotBlank()) Color.White else Gray400,
+                                    tint = if (inputValue.isNotBlank() && !isTyping) Color.White else Gray400,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
