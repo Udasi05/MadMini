@@ -1,24 +1,42 @@
-gitignore
-*.iml
-.gradle
-/local.properties
-.idea/
-.idea/caches
-.idea/libraries
-.idea/modules.xml
-.idea/workspace.xml
-.idea/navEditor.xml
-.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
-local.properties
+# Build outputs
+/build/
+app/build/
+
+# Gradle
+.gradle/
 .kotlin/
+
+# Local configuration
+local.properties
+
+# IDE - Android Studio / IntelliJ
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# NDK
+.externalNativeBuild/
+.cxx/
+
+# Signing keys
 *.jks
 *.keystore
 *.p12
-app/proguard-rules.pro.old
-.env 
+
+# Firebase config (contains API keys)
 google-services.json
+app/google-services.json
+
+# Environment / secrets
+.env
+firebase-key.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Misc
+/captures/
+app/proguard-rules.pro.old
