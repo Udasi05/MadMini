@@ -1,4 +1,5 @@
-gitignore*.iml
+gitignore
+*.iml
 .gradle
 /local.properties
 .idea/
@@ -19,3 +20,5 @@ local.properties
 *.keystore
 *.p12
 app/proguard-rules.pro.old
+.env 
+google-services.json
