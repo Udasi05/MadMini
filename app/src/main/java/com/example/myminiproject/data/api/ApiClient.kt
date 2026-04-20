@@ -14,7 +14,7 @@ object ApiClient {
     
     // Your computer's IP address for WiFi debugging
     // Find it using: ipconfig (Windows) or ifconfig (Mac/Linux)
-    private const val WIFI_IP = "192.168.164.81"
+    private const val WIFI_IP = "192.168.0.105"
     
     private val BASE_URL = if (USE_EMULATOR) {
         "http://10.0.2.2:8000/"  // For Android Emulator

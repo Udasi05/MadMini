@@ -14,6 +14,8 @@ googleServices = "4.4.2"
 materialIconsExtended = "1.7.5"
 kotlinxCoroutinesPlayServices = "1.10.1"
 lifecycleProcess = "2.10.0"
+room = "2.7.0"
+ksp = "2.0.21-1.0.28"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -41,8 +43,12 @@ retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.1
 retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version = "2.11.0" }
 kotlinx-coroutines-play-services = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-play-services", version.ref = "kotlinxCoroutinesPlayServices" }
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycleProcess" }
+room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

@@ -1,10 +1,14 @@
 package com.example.myminiproject.ui.viewmodels
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myminiproject.DhanSathiApplication
 import com.example.myminiproject.data.api.ApiClient
 import com.example.myminiproject.data.api.dto.TransactionRequest
 import com.example.myminiproject.data.api.dto.TransactionResponse
+import com.example.myminiproject.data.local.dao.TransactionDao
+import com.example.myminiproject.data.local.entities.TransactionEntity
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,9 +30,10 @@ data class TransactionStats(
     val balance: Double = 0.0
 )
 
-class TransactionViewModel : ViewModel() {
+class TransactionViewModel(application: Application) : AndroidViewModel(application) {
     private val apiService = ApiClient.apiService
     private val auth = FirebaseAuth.getInstance()
+    private val transactionDao: TransactionDao = DhanSathiApplication.getDatabase(application).transactionDao()
 
     private val _transactionState = MutableStateFlow<TransactionState>(TransactionState.Idle)
     val transactionState: StateFlow<TransactionState> = _transactionState.asStateFlow()
@@ -41,41 +46,49 @@ class TransactionViewModel : ViewModel() {
 
     fun loadTransactions() {
         val userId = auth.currentUser?.uid ?: return
-        
+
         viewModelScope.launch {
             _transactionState.value = TransactionState.Loading
+
+            // Step 1: Load from Room first (instant, offline)
             try {
-                println("Loading transactions for user: $userId")
-                println("API Base URL: ${ApiClient.apiService}")
-                
+                val localTransactions = transactionDao.getTransactionsByUserOnce(userId)
+                if (localTransactions.isNotEmpty()) {
+                    _transactions.value = localTransactions.map { it.toResponse() }
+                    updateStats(localTransactions)
+                    _transactionState.value = TransactionState.Idle
+                    println("📦 Loaded ${localTransactions.size} transactions from Room DB")
+                }
+            } catch (e: Exception) {
+                println("Room read error: ${e.message}")
+            }
+
+            // Step 2: Try to sync from API (background refresh)
+            try {
                 val response = apiService.getTransactions(userId)
-                println("API Response: ${response.code()} - ${response.message()}")
-                println("Response Headers: ${response.headers()}")
-                
                 if (response.isSuccessful && response.body() != null) {
                     val data = response.body()!!
-                    println("Transactions loaded successfully: ${data.transactions.size} transactions")
-                    println("Stats - Income: ${data.totalIncome}, Expense: ${data.totalExpense}, Balance: ${data.balance}")
-                    
                     _transactions.value = data.transactions
                     _stats.value = TransactionStats(
                         totalIncome = data.totalIncome,
                         totalExpense = data.totalExpense,
                         balance = data.balance
                     )
+
+                    // Cache to Room
+                    val entities = data.transactions.map { it.toEntity(userId) }
+                    transactionDao.deleteAllByUser(userId)
+                    transactionDao.insertAll(entities)
+                    println("☁️ Synced ${entities.size} transactions from API → Room")
+
                     _transactionState.value = TransactionState.Idle
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    val errorMsg = "API Error ${response.code()}: ${response.message()}"
-                    println(errorMsg)
-                    println("Error Body: $errorBody")
-                    _transactionState.value = TransactionState.Error(errorMsg)
                 }
             } catch (e: Exception) {
-                val errorMsg = "Network error: ${e.message}"
-                println("Exception: $errorMsg")
-                e.printStackTrace()
-                _transactionState.value = TransactionState.Error(errorMsg)
+                // API failed but we already have local data — that's fine
+                println("API sync failed (offline mode): ${e.message}")
+                if (_transactions.value.isEmpty()) {
+                    _transactionState.value = TransactionState.Error("No internet. No cached data available.")
+                }
             }
         }
     }
@@ -93,29 +106,48 @@ class TransactionViewModel : ViewModel() {
             _transactionState.value = TransactionState.Loading
             try {
                 val amountValue = amount.toDoubleOrNull() ?: 0.0
-                
-                // Format current date/time
                 val dateFormat = SimpleDateFormat("MMM dd, hh:mm a", Locale.getDefault())
                 val currentDate = dateFormat.format(Date())
+                val localId = UUID.randomUUID().toString()
 
-                val request = TransactionRequest(
-                    userId = userId,
+                // Step 1: Save to Room immediately (offline-first)
+                val entity = TransactionEntity(
+                    id = localId,
                     title = title,
                     amount = amountValue,
                     type = type,
                     category = category,
                     icon = icon,
-                    date = currentDate
+                    date = currentDate,
+                    userId = userId,
+                    timestamp = System.currentTimeMillis(),
+                    isSynced = false
                 )
+                transactionDao.insert(entity)
+                println("📦 Transaction saved to Room DB (offline)")
 
-                val response = apiService.addTransaction(request)
-                if (response.isSuccessful && response.body() != null) {
-                    _transactionState.value = TransactionState.Success("Transaction added successfully!")
-                    // Reload transactions to get updated list
-                    loadTransactions()
-                } else {
-                    _transactionState.value = TransactionState.Error("Failed to add transaction: ${response.message()}")
+                // Step 2: Try to sync to API
+                try {
+                    val request = TransactionRequest(
+                        userId = userId,
+                        title = title,
+                        amount = amountValue,
+                        type = type,
+                        category = category,
+                        icon = icon,
+                        date = currentDate
+                    )
+                    val response = apiService.addTransaction(request)
+                    if (response.isSuccessful && response.body() != null) {
+                        transactionDao.markAsSynced(localId)
+                        println("☁️ Transaction synced to API")
+                    }
+                } catch (e: Exception) {
+                    println("API sync failed, will retry later: ${e.message}")
                 }
+
+                _transactionState.value = TransactionState.Success("Transaction added successfully!")
+                loadTransactions()
             } catch (e: Exception) {
                 _transactionState.value = TransactionState.Error(e.message ?: "Unknown error occurred")
             }
@@ -124,5 +156,45 @@ class TransactionViewModel : ViewModel() {
 
     fun resetState() {
         _transactionState.value = TransactionState.Idle
+    }
+
+    private fun updateStats(transactions: List<TransactionEntity>) {
+        val income = transactions.filter { it.type == "income" }.sumOf { it.amount }
+        val expense = transactions.filter { it.type == "expense" }.sumOf { it.amount }
+        _stats.value = TransactionStats(
+            totalIncome = income,
+            totalExpense = expense,
+            balance = income - expense
+        )
+    }
+
+    // Extension functions to convert between API response and Room entity
+    private fun TransactionEntity.toResponse(): TransactionResponse {
+        return TransactionResponse(
+            id = id,
+            title = title,
+            amount = amount,
+            type = type,
+            category = category,
+            icon = icon,
+            date = date,
+            userId = userId,
+            timestamp = timestamp
+        )
+    }
+
+    private fun TransactionResponse.toEntity(userId: String): TransactionEntity {
+        return TransactionEntity(
+            id = id,
+            title = title,
+            amount = amount,
+            type = type,
+            category = category,
+            icon = icon,
+            date = date,
+            userId = userId,
+            timestamp = timestamp,
+            isSynced = true
+        )
     }
 }
